@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>asdf</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <style>
+    .card .card-header {
+        font-weight:bold;
+        font-size: 110%;
+    }
+    a.list-group-item.english {
+        font-weight:bold;
+    }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+  <a class="navbar-brand" href="#">asdf</a>
+  <div class="btn-group">
+  <button class="btn btn-warning" id="englishOnly" type="button">English Only</button>
+  <button class="btn btn-danger" id="all" type="button">All</button>
+  <button class="btn btn-success" id="refresh" type="button">Refresh</button>
+    </div>
+</div>
+</nav>
+    <div id="content" class="container"></div>
+    <script  src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script>
+    function getEvents() {
+        $.ajax({
+            dataType: "json",
+            url: '/events',
+            data: {},
+            success: function(data) {
+                for(var i=0; i<data.length; i++) {
+                    var card = $('<div>')
+                        .addClass('card')
+                    $('<div>')
+                        .addClass('card-header')
+                        .text(data[i].title)
+                        .appendTo(card)
+                    var listGroup = $('<div>')
+                        .addClass('list-group')
+                        .addClass('list-group-flush')
+                    for(var b=0; b<data[i].links.length;b++) {
+                        var a = $('<a>')
+                            .attr('href', data[i].links[b].link)
+                            .attr('target', '_blank')
+                            .addClass('list-group-item')
+                            .addClass('list-group-item-action')
+                            .text(data[i].links[b].title)
+                        if(data[i].links[b].title.match(/(\(EN\)|\[EN\]|\(en\)|\[en\]\(ENG\)|\[ENG\]\(eng\)|\[eng\])/i)) {
+                            a.addClass('english')
+                        }
+                        a.appendTo(listGroup)
+                    }
+                    listGroup.appendTo(card)
+                    card.appendTo('#content')
+                }
+            }
+        });
+    }
+    $(function() {
+        $('button#refresh').click(function() {
+            $('#content').html('')
+            getEvents()
+        })
+        $('button#englishOnly').click(function() {
+            $('#content a.list-group-item:not(.english)').slideUp(300)
+            setTimeout(function() {
+                $('#content .list-group').each(function() {
+                    if(!$('a.list-group-item.english', this).length) {
+                        $(this).parent().slideUp()
+                    }
+                })
+            }, 300)
+        })
+        $('button#all').click(function() {
+            $('#content .card').slideDown(300)
+            setTimeout(function() {
+                $('#content a.list-group-item').slideDown()
+            }, 300)
+        })
+        getEvents()
+    })
+    </script>
+</body>
+</html>
