@@ -26,6 +26,7 @@ const refreshList = function() {
                     .catch(err => console.error(err))
                     .then(res => res.json())
                     .then(json => json[1].data.children)
+                    .then(comments => comments.filter(comment => comment.kind == 't1'))
                     .then(comments => {
                         comments.forEach(comment => {
                             let body = comment.data.body
@@ -39,11 +40,7 @@ const refreshList = function() {
                             }
                         })
                     })
-                return events
             })
-        })
-        .then(events => {
-            console.log('refreshed')
         })
 }
 app.get('/', (req, res) => {
